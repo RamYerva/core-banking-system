@@ -1,0 +1,51 @@
+
+    
+     one-one
+user ------> customer
+
+
+
+user 
+
+id username  password  mobile   role      
+01 ram       ram123    95-454   customer
+02 dam       dam123    96-545   customer
+
+
+customer
+
+id    fullname       dob       user  kyc_status
+BM01   ram yerva   11-09-2003   01    pending
+BM02   dam jd      12-05-2000   02    approved
+
+
+KYC_Verification
+
+id	customer_id	  doc_type	 doc_number	  status	uploaded_at
+1	BM01	       AADHAAR	  XXXX1234	 APPROVED	2025-07-10
+2	BM02	        PAN	      ABCD1234	 PENDING	2025-07-10
+
+
+
+Account
+
+id      customer_id   name     acc_number       acc_type   balance  acc_status   acc_created_at
+ACC01    BM01       ram yerva   xxxxx9876        savings    5400     active       05-07-2023
+ACC02    BM02       dam jd      xxxxx1254        business   23400    active       07-03-2020
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
