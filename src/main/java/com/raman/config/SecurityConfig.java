@@ -50,6 +50,7 @@ public class SecurityConfig {
                         "/api/users/register"
                     ).permitAll()
         		.requestMatchers("/api/auth/login").permitAll()
+        		.requestMatchers("/api/transaction/**").permitAll()
         		.requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
             )

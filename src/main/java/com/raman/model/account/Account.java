@@ -1,9 +1,13 @@
 package com.raman.model.account;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.raman.model.customer.Customer;
+import com.raman.model.transaction.Transaction;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -53,6 +58,11 @@ public class Account {
 	@Column(nullable = false)
 	private AccountStatus status;
 
+	@OneToMany(mappedBy = "sourceAccount", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Transaction> outgoingTransactions = new ArrayList<>();
+
+	@OneToMany(mappedBy = "targetAccount", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Transaction> incomingTransactions = new ArrayList<>();
 
 	@PrePersist
 	protected void onCreate() {
@@ -60,7 +70,7 @@ public class Account {
 		if (this.balance == null) {
 			this.balance = 0.0;
 		}
-		if(this.branch!=null) {
+		if (this.branch != null) {
 			this.ifscCode = branch.getIfscCode();
 		}
 	}
@@ -128,13 +138,29 @@ public class Account {
 	public void setIfscCode(String ifscCode) {
 		this.ifscCode = ifscCode;
 	}
-	
+
 	public AccountStatus getStatus() {
 		return status;
 	}
 
 	public void setStatus(AccountStatus status) {
 		this.status = status;
+	}
+
+	public List<Transaction> getOutgoingTransactions() {
+		return outgoingTransactions;
+	}
+
+	public void setOutgoingTransactions(List<Transaction> outgoingTransactions) {
+		this.outgoingTransactions = outgoingTransactions;
+	}
+
+	public List<Transaction> getIncomingTransactions() {
+		return incomingTransactions;
+	}
+
+	public void setIncomingTransactions(List<Transaction> incomingTransactions) {
+		this.incomingTransactions = incomingTransactions;
 	}
 
 }

@@ -57,4 +57,24 @@ public class GlobalExceptionHandler{
 		return exception.getMessage();
 	}
 	
+	@ExceptionHandler(AccountNotFoundException.class)
+	public String AccountNotFoundException(AccountNotFoundException exception){
+		return exception.getMessage();
+	}
+	
+	@ExceptionHandler(InvalidAccountStatusException.class)
+	public String InvalidAccountStatusException(InvalidAccountStatusException exception){
+		return exception.getMessage();
+	}
+	
+	@ExceptionHandler(IvalidTransactionalAmountException.class)
+	public String IvalidTransactionalAmountException(IvalidTransactionalAmountException exception){
+		return exception.getMessage();
+	}
+	
+	@ExceptionHandler(InvalidPinOrReferenceIDException.class)
+	public String InvalidPinOrReferenceIDException(InvalidPinOrReferenceIDException exception){
+		return exception.getMessage();
+	}
+	
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raman.model.account.Account;
+import com.raman.model.account.SecurityPinCreation;
 import com.raman.model.auth.User;
 
 import jakarta.persistence.CascadeType;
@@ -69,6 +70,9 @@ public class Customer {
 	
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	private List<Account> accounts = new ArrayList<>();
+	
+	@OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private SecurityPinCreation pinCreation;
 	
 	@PrePersist
 	public void createdAt() {
@@ -167,6 +171,14 @@ public class Customer {
 
 	public void setAge(int age) {
 		this.age = age;
+	}
+
+	public SecurityPinCreation getPinCreation() {
+		return pinCreation;
+	}
+
+	public void setPinCreation(SecurityPinCreation pinCreation) {
+		this.pinCreation = pinCreation;
 	}
 
 
