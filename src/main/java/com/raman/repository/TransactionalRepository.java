@@ -8,6 +8,7 @@ import com.raman.model.transaction.Transaction;
 
 import jakarta.persistence.LockModeType;
 
+
 public interface TransactionalRepository extends JpaRepository<Transaction, Long>{
 	
 	
@@ -16,4 +17,5 @@ public interface TransactionalRepository extends JpaRepository<Transaction, Long
 	public Transaction findByReferenceIdWithLock(String referenceId);
 
 
+	public Transaction  findByReferenceId(String referenceId);
 }

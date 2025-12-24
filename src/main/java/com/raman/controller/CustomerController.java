@@ -34,6 +34,4 @@ public class CustomerController {
 		CustomerResponseDTO responseDTO =   customerService.registerCustomer(customerRegistrationDTO);
 		return ResponseEntity.status(201).body(responseDTO);
 	}
-	
-
 }

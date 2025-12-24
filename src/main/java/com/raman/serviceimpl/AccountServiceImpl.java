@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.raman.dto.AccountResponseDTO;
 import com.raman.dto.CreateAccountRequestDTO;
 import com.raman.exceptions.AccountAlreadyExistsException;
+import com.raman.exceptions.AccountNotFoundException;
 import com.raman.exceptions.CustomerNotFoundException;
 import com.raman.exceptions.IncompleteKYCException;
 import com.raman.model.account.Account;
@@ -122,6 +123,21 @@ public class AccountServiceImpl implements AccountService {
 	    long scrambled = (seq ^ OFFSET) * MULTIPLIER;
 	    long bounded = Math.abs(scrambled) % 10_000_000_000L; 
 	    return String.format("%010d", bounded);
+	}
+	
+	
+	
+	@Override
+	public Double getAccountBalance(String accountNumber) {
+		
+		Account account = accountRepository.findByAccountNumber(accountNumber);
+		
+		if(account == null) {
+			throw new AccountNotFoundException("No account is found with this " + accountNumber);
+		}
+		//based on acc-number, will get acc-info like,
+		//acc-balance, transactions he did		
+		return account.getBalance();
 	}
 
 

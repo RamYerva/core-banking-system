@@ -3,6 +3,7 @@ package com.raman.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "User Login", description = "Authenticates user and generates JWT token")
 	public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
 		try {

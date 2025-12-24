@@ -1,6 +1,7 @@
 package com.raman.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,7 @@ public class KYCVerificationController {
 	
 	
 	@PostMapping("/upload")
+	@PreAuthorize("hasRole('CUSTOMER')")
 	@Operation(summary = "Upload KYC Documents", description = "Uploads KYC documents for verification")
 	public ResponseEntity<?> uploadKYCDocuments(@Valid @RequestBody KYCRequestDTO kycRequestDTO){
 		String response = kycService.uploadKYCDocuments(kycRequestDTO);

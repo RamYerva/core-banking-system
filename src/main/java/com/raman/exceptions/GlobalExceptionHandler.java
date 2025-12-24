@@ -67,13 +67,18 @@ public class GlobalExceptionHandler{
 		return exception.getMessage();
 	}
 	
-	@ExceptionHandler(IvalidTransactionalAmountException.class)
-	public String IvalidTransactionalAmountException(IvalidTransactionalAmountException exception){
+	@ExceptionHandler(InvalidTransactionalAmountException.class)
+	public String InvalidTransactionalAmountException(InvalidTransactionalAmountException exception){
 		return exception.getMessage();
 	}
 	
 	@ExceptionHandler(InvalidPinOrReferenceIDException.class)
 	public String InvalidPinOrReferenceIDException(InvalidPinOrReferenceIDException exception){
+		return exception.getMessage();
+	}
+	
+	@ExceptionHandler(FalseTransactionException.class)
+	public String FalseTransactionException(FalseTransactionException exception){
 		return exception.getMessage();
 	}
 	

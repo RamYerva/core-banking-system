@@ -11,6 +11,8 @@ import com.raman.model.customer.Customer;
 import jakarta.persistence.LockModeType;
 
 import com.raman.model.account.AccountType;
+import java.util.List;
+
 
 
 
@@ -24,5 +26,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("SELECT a FROM Account a WHERE a.accountNumber = :accountNumber")
 	Account findByAccountNumberWithLock(String accountNumber);
+	
+	
+	Account findByAccountNumber(String accountNumber);
 
 }

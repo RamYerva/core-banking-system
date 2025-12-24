@@ -50,7 +50,12 @@ public class SecurityConfig {
                         "/api/users/register"
                     ).permitAll()
         		.requestMatchers("/api/auth/login").permitAll()
-        		.requestMatchers("/api/transaction/**").permitAll()
+        		.requestMatchers("/api/transaction/**").authenticated()
+        		.requestMatchers("/api/account/**").authenticated()
+        		.requestMatchers("/api/admin/approvals/**").hasAuthority("ADMIN")
+        		.requestMatchers("/api/customer/**").authenticated()
+        		.requestMatchers("/api/kyc/**").authenticated()
+        		.requestMatchers("/api/pin/**").authenticated()
         		.requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
             )

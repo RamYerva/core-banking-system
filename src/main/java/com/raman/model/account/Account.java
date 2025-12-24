@@ -21,6 +21,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Table(name = "accounts")
 @Entity
@@ -63,6 +64,10 @@ public class Account {
 
 	@OneToMany(mappedBy = "targetAccount", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Transaction> incomingTransactions = new ArrayList<>();
+	
+	@Version
+	@Column(name = "version")
+	private Long version;
 
 	@PrePersist
 	protected void onCreate() {
