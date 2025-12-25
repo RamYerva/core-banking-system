@@ -30,6 +30,7 @@ public class AccountController {
 	}
 	
 	@PostMapping("/create")
+	@PreAuthorize("hasAuthority('USER')")
 	@Operation(summary = "creating a new user", description = "customer can open the new account")
 	public ResponseEntity<?> createAccount(@RequestBody CreateAccountRequestDTO requestDTO){
 		AccountResponseDTO responseDTO = accountService.createAccount(requestDTO);
@@ -37,7 +38,7 @@ public class AccountController {
 	}
 	
 	@GetMapping("/balance/{accountNumber}")
-	@PreAuthorize("hasRole('CUSTOMER')")
+	@PreAuthorize("hasAuthority('CUSTOMER')")
 	public ResponseEntity<?> getAccountBalance(@PathVariable String accountNumber){
 		double balance = accountService.getAccountBalance(accountNumber);
 		return ResponseEntity.ok(balance);

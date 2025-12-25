@@ -53,6 +53,8 @@ public class Transaction {
 
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
+	
+	private int pinAttempts;
 
 	@PrePersist
 	public void onTransaction() {
@@ -138,5 +140,15 @@ public class Transaction {
 	public void setClosingBalance(Double closingBalance) {
 		this.closingBalance = closingBalance;
 	}
+
+	public int getPinAttempts() {
+		return pinAttempts;
+	}
+
+	public void setPinAttempts(int pinAttempts) {
+		this.pinAttempts = pinAttempts;
+	}
+
+	
 
 }

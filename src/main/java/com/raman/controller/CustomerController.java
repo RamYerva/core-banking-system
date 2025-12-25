@@ -1,6 +1,7 @@
 package com.raman.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,7 @@ public class CustomerController {
 	
 	
     @PostMapping("/register")
+    @PreAuthorize("hasAuthority('USER')")
     @Operation(summary = "Register Customer", description = "Registers a new customer")
 	public ResponseEntity<?> registerCustomer(@Valid @RequestBody CustomerRegistrationDTO customerRegistrationDTO){
 		

@@ -2,14 +2,11 @@ package com.raman.serviceimpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.raman.dto.SecurityPinResponseDTO;
@@ -21,10 +18,8 @@ import com.raman.exceptions.FalseTransactionException;
 import com.raman.exceptions.InvalidAccountStatusException;
 import com.raman.exceptions.InvalidPinOrReferenceIDException;
 import com.raman.exceptions.InvalidTransactionalAmountException;
-import com.raman.exceptions.IvalidTransactionalAmountException;
 import com.raman.model.account.Account;
 import com.raman.model.account.AccountStatus;
-import com.raman.model.customer.Customer;
 import com.raman.model.transaction.Transaction;
 import com.raman.model.transaction.Transaction_Status;
 import com.raman.model.transaction.Transaction_Type;
@@ -44,7 +39,7 @@ public class TransactionServiceImpl implements TransactionService {
 	private final TransactionalRepository transactionalRepository;
 	private final ModelMapper mapper;
 	private final JdbcTemplate jdbcTemplate;
-	
+
 	@Autowired
 	private CustomerRepository customerRepository;
 
@@ -64,8 +59,6 @@ public class TransactionServiceImpl implements TransactionService {
 
 	private static final long OFFSET = 12345L;
 	private static final long MULTIPLIER = 987654321L;
-	
-	
 
 	@Override
 	@Transactional
@@ -110,7 +103,7 @@ public class TransactionServiceImpl implements TransactionService {
 		transaction.setClosingBalance(closingBalance);
 
 		transaction.setReferenceId(generateTransactionReference());
-		//transaction.setCreatedAt(LocalDateTime.now());
+		transaction.setCreatedAt(LocalDateTime.now());
 
 		// save the transaction after security_pin authentication
 		Transaction savedTransaction = transactionalRepository.save(transaction);
@@ -118,19 +111,14 @@ public class TransactionServiceImpl implements TransactionService {
 		// map to dto
 		TransactionResponseDTO responseDTO = mapper.map(savedTransaction, TransactionResponseDTO.class);
 		if (savedTransaction.getTargetAccount() != null) {
-		    responseDTO.setToAccountNumber(
-		        savedTransaction.getTargetAccount().getAccountNumber()
-		    );
+			responseDTO.setToAccountNumber(savedTransaction.getTargetAccount().getAccountNumber());
 		}
 
 		if (savedTransaction.getSourceAccount() != null) {
-		    responseDTO.setFromAccountNumber(
-		        savedTransaction.getSourceAccount().getAccountNumber()
-		    );
+			responseDTO.setFromAccountNumber(savedTransaction.getSourceAccount().getAccountNumber());
 		}
-		
-		responseDTO.setTransactionTime(savedTransaction.getCreatedAt());
 
+		responseDTO.setTransactionTime(savedTransaction.getCreatedAt());
 
 		return responseDTO;
 	}
@@ -145,13 +133,13 @@ public class TransactionServiceImpl implements TransactionService {
 
 		jdbcTemplate.execute("UPDATE txs_ref_seq SET next_val = LAST_INSERT_ID(next_val + 1)");
 		Long serialValue = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
-		String maskedSeq = maskSequence(serialValue); 
+		String maskedSeq = maskSequence(serialValue);
 		String yearPart = String.valueOf(LocalDate.now().getYear());
 		return "TXN" + yearPart + maskedSeq;
 	}
-	
+
 	private String maskSequence(long seq) {
-		
+
 		long scrambled = (seq ^ OFFSET) * MULTIPLIER;
 		long bounded = Math.abs(scrambled);
 		String base36 = Long.toString(bounded, 36).toUpperCase();
@@ -159,10 +147,13 @@ public class TransactionServiceImpl implements TransactionService {
 
 	}
 	
+	
+	
+
 	@Override
 	@Transactional
 	public SecurityPinResponseDTO initiateWithdrawAmount(TransactionRequestDTO requestDTO) {
-		
+
 		Account account = accountRepository.findByAccountNumberWithLock(requestDTO.getSourceAccountNumber());
 
 		if (account == null) {
@@ -180,13 +171,12 @@ public class TransactionServiceImpl implements TransactionService {
 		Double openingBalance = account.getBalance(); //// initial balance = 50000
 
 		if (transactionalAmount == null || transactionalAmount <= 0) {
-		    throw new InvalidTransactionalAmountException("Amount must be greater than zero");
+			throw new InvalidTransactionalAmountException("Amount must be greater than zero");
 		}
 
 		if (transactionalAmount > openingBalance) {
-		    throw new InvalidTransactionalAmountException("Insufficient balance");
+			throw new InvalidTransactionalAmountException("Insufficient balance");
 		}
-
 
 		Transaction transaction = new Transaction();
 
@@ -207,10 +197,10 @@ public class TransactionServiceImpl implements TransactionService {
 
 		return responseDTO;
 	}
+	
+	
+	
 
-	
-	
-	
 	@Override
 	@Transactional
 	public TransactionResponseDTO confirmWithdrawAmount(SecurityPinValidateDTO pinCheckDTO) {
@@ -223,7 +213,7 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 
 		if (transaction.getTransaction_Status() != Transaction_Status.PENDING) {
-			throw new RuntimeException("Transaction already processed");
+			throw new InvalidPinOrReferenceIDException("Transaction already processed");
 		}
 
 		Account account = accountRepository
@@ -231,8 +221,6 @@ public class TransactionServiceImpl implements TransactionService {
 
 		// validation with securityPin
 		if (!pinCheckService.validateSecurityPin(account, pinCheckDTO)) {
-			transaction.setTransaction_Status(Transaction_Status.FAILED);
-			transactionalRepository.save(transaction);
 			throw new InvalidPinOrReferenceIDException("Invalid pin or reference");
 		}
 
@@ -240,8 +228,6 @@ public class TransactionServiceImpl implements TransactionService {
 		Double amount = transaction.getAmount();
 
 		if (amount > balance || amount < 0) {
-			transaction.setTransaction_Status(Transaction_Status.FAILED);
-			transactionalRepository.save(transaction);
 			throw new InvalidTransactionalAmountException("Insufficient Balance");
 		}
 
@@ -252,16 +238,21 @@ public class TransactionServiceImpl implements TransactionService {
 
 		transaction.setClosingBalance(closingBalance);
 		transaction.setTransaction_Status(Transaction_Status.SUCCESS);
-		//transaction.setCreatedAt(LocalDateTime.now());
+		// transaction.setCreatedAt(LocalDateTime.now());
 
-		transactionalRepository.save(transaction);
+		Transaction savedtrnx = transactionalRepository.save(transaction);
 
-		TransactionResponseDTO responseDTO = mapper.map(transaction, TransactionResponseDTO.class);
+		TransactionResponseDTO responseDTO = mapper.map(savedtrnx, TransactionResponseDTO.class);
+
+		responseDTO.setFromAccountNumber(savedtrnx.getSourceAccount().getAccountNumber());
+		responseDTO.setTransactionTime(savedtrnx.getCreatedAt());
 
 		return responseDTO;
 	}
 	
 	
+	
+
 	@Override
 	@Transactional
 	public SecurityPinResponseDTO initiateTransferAmount(TransactionRequestDTO requestDTO) {
@@ -290,13 +281,12 @@ public class TransactionServiceImpl implements TransactionService {
 		Double amount = requestDTO.getAmount();
 
 		if (amount == null || amount <= 0) {
-		    throw new InvalidTransactionalAmountException("Amount must be greater than zero");
+			throw new InvalidTransactionalAmountException("Amount must be greater than zero");
 		}
 
 		if (amount > sourceAccount.getBalance()) {
-		    throw new InvalidTransactionalAmountException("Insufficient Balance");
+			throw new InvalidTransactionalAmountException("Insufficient Balance");
 		}
-
 
 		// balance before transax -> sourceAcc
 		Double openingBalanceofSourceAcc = sourceAccount.getBalance(); // 70000
@@ -323,6 +313,9 @@ public class TransactionServiceImpl implements TransactionService {
 
 		return responseDTO;
 	}
+	
+	
+	
 
 	@Override
 	@Transactional
@@ -339,31 +332,34 @@ public class TransactionServiceImpl implements TransactionService {
 			throw new RuntimeException("Transaction already processed");
 		}
 
-		String srcNo = transaction.getSourceAccount().getAccountNumber(); 
-		String tgtNo = transaction.getTargetAccount().getAccountNumber(); 
+		String srcNo = transaction.getSourceAccount().getAccountNumber();
+		String tgtNo = transaction.getTargetAccount().getAccountNumber();
 
-		Account sourceAccount;
-		Account targetAccount;
+		Account firstAccount; // 101
+		Account secondAccount; // 102
 
-		if (srcNo.compareTo(tgtNo) < 0) {
-			sourceAccount = accountRepository.findByAccountNumberWithLock(srcNo);
-			targetAccount = accountRepository.findByAccountNumberWithLock(tgtNo);
+		if (srcNo.compareTo(tgtNo) < 0) { // 101<102 true
+			firstAccount = accountRepository.findByAccountNumberWithLock(srcNo); // Lock(sourceAccount)
+			secondAccount = accountRepository.findByAccountNumberWithLock(tgtNo); // Lock(targetAccount)
 		} else {
-			sourceAccount = accountRepository.findByAccountNumberWithLock(tgtNo);
-			targetAccount = accountRepository.findByAccountNumberWithLock(srcNo);
+			firstAccount = accountRepository.findByAccountNumberWithLock(tgtNo); // Lock(targetAccount)
+			secondAccount = accountRepository.findByAccountNumberWithLock(srcNo); // Lock(sourceAccount)
 		}
 
-		
-	/*	Account sourceAccount = accountRepository
-				.findByAccountNumberWithLock(transaction.getSourceAccount().getAccountNumber());
+		Account sourceAccount = firstAccount.getAccountNumber().equals(srcNo) ? firstAccount : secondAccount;
+		Account targetAccount = firstAccount.getAccountNumber().equals(tgtNo) ? firstAccount : secondAccount;
 
-		Account targetAccount = accountRepository
-				.findByAccountNumberWithLock(transaction.getTargetAccount().getAccountNumber());
-    */		
+		/*
+		 * Account sourceAccount = accountRepository
+		 * .findByAccountNumberWithLock(transaction.getSourceAccount().getAccountNumber(
+		 * ));
+		 * 
+		 * Account targetAccount = accountRepository
+		 * .findByAccountNumberWithLock(transaction.getTargetAccount().getAccountNumber(
+		 * ));
+		 */
 
 		if (!pinCheckService.validateSecurityPin(sourceAccount, pinCheckDTO)) {
-			transaction.setTransaction_Status(Transaction_Status.FAILED);
-			transactionalRepository.save(transaction);
 			throw new InvalidPinOrReferenceIDException("Invalid pin or reference");
 		}
 
@@ -371,8 +367,6 @@ public class TransactionServiceImpl implements TransactionService {
 		Double amount = transaction.getAmount(); // 20000
 
 		if (amount > balance || amount < 0) {
-			transaction.setTransaction_Status(Transaction_Status.FAILED);
-			transactionalRepository.save(transaction);
 			throw new InvalidTransactionalAmountException("Insufficient Balance");
 		}
 
@@ -390,29 +384,24 @@ public class TransactionServiceImpl implements TransactionService {
 
 		Transaction savedTrnx = transactionalRepository.save(transaction);
 
-		TransactionResponseDTO trnxDto = mapper.map(savedTrnx, TransactionResponseDTO.class);
-
-		return trnxDto;
+		TransactionResponseDTO dto = mapper.map(savedTrnx, TransactionResponseDTO.class);
+		dto.setTransactionTime(savedTrnx.getCreatedAt());
+		dto.setFromAccountNumber(savedTrnx.getSourceAccount().getAccountNumber());
+		dto.setToAccountNumber(savedTrnx.getTargetAccount().getAccountNumber());
+		return dto;
 
 	}
-	
 
 	@Override
 	public List<TransactionResponseDTO> getTransactionHistory(String accountNumber, LocalDate fromDate,
 			LocalDate toDate) {
-		
+
 		Account account = accountRepository.findByAccountNumber(accountNumber);
-		
-		if(account == null) {
+
+		if (account == null) {
 			throw new AccountNotFoundException("No account is found with this " + accountNumber);
 		}
-		
-		for(Transaction transaction : account.getIncomingTransactions()) {
-			
-		}
-		
-		
-		
+
 		return null;
 	}
 

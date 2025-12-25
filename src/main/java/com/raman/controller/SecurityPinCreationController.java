@@ -24,7 +24,7 @@ public class SecurityPinCreationController {
 	}
 
 	@PostMapping("/create")
-	@PreAuthorize("hasRole('CUSTOMER')")
+	@PreAuthorize("hasAuthority('CUSTOMER')")
 	public ResponseEntity<?> createSecurityPin(@Valid @RequestBody SecurityPinRequestDTO pin){
 		String pinResponse = pinCheckService.pinCreation(pin);
 		return ResponseEntity.ok(pinResponse);

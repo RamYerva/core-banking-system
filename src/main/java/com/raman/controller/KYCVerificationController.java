@@ -30,7 +30,7 @@ public class KYCVerificationController {
 	
 	
 	@PostMapping("/upload")
-	@PreAuthorize("hasRole('CUSTOMER')")
+	@PreAuthorize("hasAuthority('CUSTOMER')")
 	@Operation(summary = "Upload KYC Documents", description = "Uploads KYC documents for verification")
 	public ResponseEntity<?> uploadKYCDocuments(@Valid @RequestBody KYCRequestDTO kycRequestDTO){
 		String response = kycService.uploadKYCDocuments(kycRequestDTO);

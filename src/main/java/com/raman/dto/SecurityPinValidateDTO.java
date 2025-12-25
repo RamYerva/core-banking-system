@@ -13,7 +13,7 @@ public class SecurityPinValidateDTO {
     @Size(min = 4, max = 6)
     @Pattern(regexp = "^[0-9]*$")
     private String pin;
-
+    
 	public String getTransactionReference() {
 		return transactionReference;
 	}
@@ -29,6 +29,7 @@ public class SecurityPinValidateDTO {
 	public void setPin(String pin) {
 		this.pin = pin;
 	}
+
 	
 
 }

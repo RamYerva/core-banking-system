@@ -28,7 +28,6 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "User Login", description = "Authenticates user and generates JWT token")
 	public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
 		try {

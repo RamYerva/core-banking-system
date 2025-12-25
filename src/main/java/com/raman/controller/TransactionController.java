@@ -19,7 +19,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/transaction")
-@PreAuthorize("isAuthenticated()")
 public class TransactionController {
 	
 	private final TransactionService transactionService;
@@ -31,7 +30,7 @@ public class TransactionController {
 
 
 	@PostMapping("/deposit")
-	@PreAuthorize("hasRole('CUSTOMER')")
+	@PreAuthorize("hasAuthority('CUSTOMER')")
 	public ResponseEntity<TransactionResponseDTO> depositAmount(@Valid @RequestBody TransactionRequestDTO requestDTO){
 		TransactionResponseDTO response = transactionService.depositAmount(requestDTO);
 		return ResponseEntity.ok(response);
@@ -39,7 +38,7 @@ public class TransactionController {
 	
 	
 	@PostMapping("/initiate/withdraw")
-	@PreAuthorize("hasRole('CUSTOMER')")
+	@PreAuthorize("hasAuthority('CUSTOMER')")
 	public ResponseEntity<SecurityPinResponseDTO> initiateWithdrawAmount(@Valid @RequestBody TransactionRequestDTO requestDTO){
 		SecurityPinResponseDTO response = transactionService.initiateWithdrawAmount(requestDTO);
 		return ResponseEntity.ok(response);
@@ -47,6 +46,7 @@ public class TransactionController {
 	
 	
 	@PostMapping("/confirm/withdraw")
+	@PreAuthorize("hasAuthority('CUSTOMER')")
 	public ResponseEntity<TransactionResponseDTO> confirmWithdrawAmount(@Valid @RequestBody SecurityPinValidateDTO pinCheckDTO){
 		TransactionResponseDTO response = transactionService.confirmWithdrawAmount(pinCheckDTO);
 		return ResponseEntity.ok(response);
@@ -54,14 +54,14 @@ public class TransactionController {
 	
 	
 	@PostMapping("/initiate/transfer")
-	@PreAuthorize("hasRole('CUSTOMER')")
+	@PreAuthorize("hasAuthority('CUSTOMER')")
 	public ResponseEntity<SecurityPinResponseDTO> initiateTransferAmount(@Valid @RequestBody TransactionRequestDTO requestDTO){
 		SecurityPinResponseDTO response = transactionService.initiateTransferAmount(requestDTO);
 		return ResponseEntity.ok(response);
 	}
 	
 	@PostMapping("/confirm/transfer")
-	@PreAuthorize("hasRole('CUSTOMER')")
+	@PreAuthorize("hasAuthority('CUSTOMER')")
 	public ResponseEntity<TransactionResponseDTO> confirmTransferAmount(@Valid @RequestBody SecurityPinValidateDTO pinCheckDTO){
 		TransactionResponseDTO response = transactionService.confirmTransferAmount(pinCheckDTO);
 		return ResponseEntity.ok(response);
