@@ -2,7 +2,8 @@
 
 A simplified Core Banking backend system built using Spring Boot, demonstrating
 real-world banking workflows such as customer onboarding, KYC verification,
-admin approval, and secure account creation.
+admin approval, and secure account creation, with full transaction support including
+deposit, withdrawal, transfer, and security pin authentication.
 
 ---
 
@@ -14,7 +15,12 @@ admin approval, and secure account creation.
 - Admin approval / rejection of KYC
 - Account creation only after KYC verification
 - One account per customer per account type
-- Deterministic and masked account number generation
+- Deterministic and masked account number generation​
+- Deposit, withdrawal, and fund transfer operations​
+- Transaction authentication via security PIN validation (3-attempt limit)
+- Optimistic locking (@Version) for reads, pessimistic for writes
+- Swagger OpenAPI documentation​
+- Postman collection for API testing
 - Transaction-safe operations
 - Custom exception handling
 
@@ -26,7 +32,10 @@ admin approval, and secure account creation.
 - Customers cannot create accounts unless KYC is VERIFIED
 - Duplicate accounts of the same type are not allowed
 - Account numbers are unique and validated with a check digit
-- All critical operations are transactional
+- Transactions require security PIN confirmation
+- Pessimistic locks during balance updates, optimistic for balance reads
+- 3 failed PIN attempts lock account for 15 minutes
+- All critical operations transactional
 
 ---
 
@@ -39,6 +48,9 @@ admin approval, and secure account creation.
 - MySQL
 - JdbcTemplate
 - ModelMapper
+- SpringDoc OpenAPI (Swagger)
+- Postman Collections
+
 
 ---
 
@@ -47,13 +59,23 @@ admin approval, and secure account creation.
 - Database-level UNIQUE constraints to prevent duplicates
 - Transaction boundaries using `@Transactional`
 - Deterministic account number generation using internal sequence masking
+- Optimistic locking (@Version) for high-read balance checks
+- Pessimistic_WRITE locks for deposit/withdraw/transfer
+- SecurityPinCheckService with attempt tracking
 - Clear separation of concerns (Controller / Service / Repository)
+- Swagger UI at /swagger-ui.html
 
 ---
 
+API Documentation
+Access interactive API docs:
+
+Swagger UI: http://localhost:8080/swagger-ui.html 
+OpenAPI JSON: http://localhost:8080/v3/api-docs
+
+
 ## 🚧 Future Enhancements (Planned)
 
-- Account transactions (debit / credit)
 - Balance locking
 - Statements
 - Audit logs
@@ -63,6 +85,6 @@ admin approval, and secure account creation.
 
 ## 📂 Project Status
 
-**Version:** v1  
+**Version:** v2  
 **State:** Stable  
-**Purpose:** Backend system design & learning project
+**Purpose:** Enterprise banking backend learning project
